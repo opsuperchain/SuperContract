@@ -104,7 +104,6 @@ export class SuperContract {
       chain: walletClient.chain,
       to: CREATE2_FACTORY_ADDRESS,
       data: data,
-      gas: BigInt(5000000),
     })
 
     console.debug('Transaction sent. Hash:', hash)
@@ -147,7 +146,7 @@ export class SuperContract {
     }
   }
 
-  async sendTx(chainId: number, functionName: string, args: any[] = []): Promise<TransactionReceipt> {
+  async sendTx(chainId: number, functionName: string, args: any[] = [], value: bigint = BigInt(0)): Promise<TransactionReceipt> {
     const { publicClient, walletClient } = this.getClients(chainId)
     console.debug(`Preparing to send transaction for function ${functionName} with args:`, args)
 
@@ -166,6 +165,7 @@ export class SuperContract {
     const gasLimit = await publicClient.estimateGas({
       account: this.wallet.getAccount().address,
       to: this.address,
+      value,
       data,
     })
     const gasPrice = await publicClient.getGasPrice()
@@ -176,6 +176,7 @@ export class SuperContract {
       gas: gasLimit as bigint,
       gasPrice: gasPrice as bigint,
       nonce: nonce as number,
+      value,
       chain,
       account: this.wallet.getAccount(),
     }
